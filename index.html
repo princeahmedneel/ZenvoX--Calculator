@@ -1,0 +1,244 @@
+<!DOCTYPE html>
+<html lang="bn" data-theme="light">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=5.0, user-scalable=yes">
+  <meta name="theme-color" content="#0D47A1">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+  <meta name="apple-mobile-web-app-title" content="ZenvX - Calculator">
+  <meta name="description" content="ZenvX - Calculator: বাংলাদেশের শিক্ষার্থী ও শিক্ষকদের জন্য অল-ইন-ওয়ান সায়েন্টিফিক ক্যালকুলেটর, AI সলভার ও স্টাডি অ্যাপ">
+  <title>ZenvX - Calculator</title>
+
+  <!-- PWA Manifest & Icons -->
+  <link rel="manifest" href="./manifest.json">
+  <link rel="apple-touch-icon" href="https://cdn-icons-png.flaticon.com/512/3426/3426653.png">
+  <link rel="icon" type="image/png" href="https://cdn-icons-png.flaticon.com/512/3426/3426653.png">
+
+  <!-- Google Fonts: Hind Siliguri (বাংলা), Inter (English), JetBrains Mono (Math/Code) -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Hind+Siliguri:wght@400;500;600;700&family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500;600;700&display=swap" rel="stylesheet">
+
+  <!-- Material Symbols Rounded (Icons) -->
+  <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Rounded:opsz,wght,FILL,GRAD@24,400,1,0" rel="stylesheet">
+
+  <!-- KaTeX for High-Speed LaTeX Math Rendering -->
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/katex.min.css">
+  <script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/katex.min.js"></script>
+
+  <!-- App Stylesheets -->
+  <link rel="stylesheet" href="./css/variables.css">
+  <link rel="stylesheet" href="./css/main.css">
+  <link rel="stylesheet" href="./css/calculator.css">
+  <link rel="stylesheet" href="./css/modules.css">
+</head>
+<body>
+
+  <!-- Offline Status Banner -->
+  <div id="offline-banner" class="offline-banner hidden" role="status" aria-live="polite">
+    <span class="material-symbols-rounded">wifi_off</span>
+    <span data-i18n="offline_msg">আপনি অফলাইনে আছেন। ZenvX ক্যালকুলেটর ও সেভ করা নোট সম্পূর্ণ কাজ করবে।</span>
+  </div>
+
+  <!-- Top App Bar -->
+  <header id="app-header" class="app-header hidden">
+    <div class="header-left">
+      <button id="btn-back" class="icon-btn hidden" aria-label="Back">
+        <span class="material-symbols-rounded">arrow_back</span>
+      </button>
+      <div class="brand-lockup">
+        <span class="brand-logo material-symbols-rounded">calculate</span>
+        <h1 id="header-title" class="header-title" data-i18n="app_name">ZenvX - Calculator</h1>
+      </div>
+    </div>
+
+    <div class="header-actions">
+      <!-- Number Format Toggle: ১২৩ vs 123 -->
+      <button id="btn-num-toggle" class="chip-btn" title="সংখ্যা ফরম্যাট পরিবর্তন (বাংলা/English)">
+        <span id="num-toggle-label">১২৩</span>
+      </button>
+      <!-- Language Toggle: বাংলা vs EN -->
+      <button id="btn-lang-toggle" class="chip-btn" title="ভাষা পরিবর্তন">
+        <span id="lang-toggle-label">বাং</span>
+      </button>
+      <!-- Dark/Light Theme Toggle -->
+      <button id="btn-theme-toggle" class="icon-btn" aria-label="Toggle Theme">
+        <span id="theme-icon" class="material-symbols-rounded">dark_mode</span>
+      </button>
+      <!-- Settings Shortcut -->
+      <button id="btn-settings-nav" class="icon-btn" aria-label="Settings">
+        <span class="material-symbols-rounded">settings</span>
+      </button>
+    </div>
+  </header>
+
+  <!-- Main Viewport Container -->
+  <main id="app-main" class="app-main">
+
+    <!-- 1. SPLASH SCREEN -->
+    <section id="view-splash" class="view-section active-view splash-screen">
+      <div class="splash-content">
+        <div class="splash-logo-circle">
+          <span class="material-symbols-rounded splash-icon">functions</span>
+        </div>
+        <h1 class="splash-title" data-i18n="app_name">ZenvX - Calculator</h1>
+        <p class="splash-subtitle" data-i18n="app_tagline">সায়েন্টিফিক ক্যালকুলেটর, AI সলভার ও অল-ইন-ওয়ান স্টাডি নেটওয়ার্ক</p>
+        <div class="splash-loader">
+          <div class="spinner"></div>
+        </div>
+      </div>
+    </section>
+
+    <!-- 2. ONBOARDING SCREEN (3 Slides) -->
+    <section id="view-onboarding" class="view-section hidden">
+      <div class="onboarding-container">
+        <div class="onboarding-slides" id="onboarding-slides">
+          <!-- Slide 1 -->
+          <div class="onboarding-slide active" data-slide="0">
+            <div class="onboarding-illus bg-blue-soft">
+              <span class="material-symbols-rounded">calculate</span>
+            </div>
+            <h2 data-i18n="onb_title_1">ZenvX সায়েন্টিফিক ক্যালকুলেটর</h2>
+            <p data-i18n="onb_desc_1">নরমাল হিসাব থেকে শুরু করে ম্যাট্রিক্স, ভেক্টর, সমীকরণ, ক্যালকুলাস ও ভগ্নাংশ—সবই চলবে অফলাইনে।</p>
+          </div>
+          <!-- Slide 2 -->
+          <div class="onboarding-slide" data-slide="1">
+            <div class="onboarding-illus bg-teal-soft">
+              <span class="material-symbols-rounded">psychology</span>
+            </div>
+            <h2 data-i18n="onb_title_2">AI সলভার ও ব্যক্তিগত টিউটর</h2>
+            <p data-i18n="onb_desc_2">অংকের ছবি তুলুন বা মুখে বলুন—ধাপে ধাপে বাংলা ব্যাখ্যাসহ সমাধান পান মুহূর্তেই।</p>
+          </div>
+          <!-- Slide 3 -->
+          <div class="onboarding-slide" data-slide="2">
+            <div class="onboarding-illus bg-amber-soft">
+              <span class="material-symbols-rounded">groups</span>
+            </div>
+            <h2 data-i18n="onb_title_3">স্টাডি গ্রুপ, কল ও নোট শেয়ারিং</h2>
+            <p data-i18n="onb_desc_3">বন্ধু ও শিক্ষকদের সাথে চ্যাট, অডিও/ভিডিও স্টাডি রুম, কোডিং এবং এডুকেশন কনটেন্ট থেকে আয়।</p>
+          </div>
+        </div>
+
+        <div class="onboarding-dots" id="onboarding-dots">
+          <span class="dot active" data-dot="0"></span>
+          <span class="dot" data-dot="1"></span>
+          <span class="dot" data-dot="2"></span>
+        </div>
+
+        <div class="onboarding-actions">
+          <button id="btn-onb-skip" class="btn btn-text" data-i18n="skip">এড়িয়ে যান</button>
+          <button id="btn-onb-next" class="btn btn-primary" data-i18n="next">পরবর্তী</button>
+        </div>
+      </div>
+    </section>
+
+    <!-- 3. HOME / CALCULATOR HUB SCREEN -->
+    <section id="view-home" class="view-section hidden">
+      <!-- Top 3 Hero Feature Cards -->
+      <div class="hero-cards-grid">
+        <button class="hero-card active-hero" data-subview="normal-calc" id="tab-btn-normal">
+          <div class="hero-card-icon blue-grad">
+            <span class="material-symbols-rounded">dialpad</span>
+          </div>
+          <div class="hero-card-info">
+            <h3 data-i18n="normal_calc">নরমাল ক্যালকুলেটর</h3>
+            <p data-i18n="normal_calc_sub">নির্ভুল দশমিক ও লাখ-কোটি হিসাব</p>
+          </div>
+        </button>
+
+        <button class="hero-card" data-subview="sci-calc" id="tab-btn-sci">
+          <div class="hero-card-icon teal-grad">
+            <span class="material-symbols-rounded">functions</span>
+          </div>
+          <div class="hero-card-info">
+            <h3 data-i18n="sci_calc">সায়েন্টিফিক ক্যালকুলেটর</h3>
+            <p data-i18n="sci_calc_sub">সমীকরণ, ম্যাট্রিক্স, ক্যালকুলাস ও ১২ মোড</p>
+          </div>
+        </button>
+
+        <button class="hero-card" data-subview="ai-solver" id="tab-btn-ai">
+          <div class="hero-card-icon purple-grad">
+            <span class="material-symbols-rounded">auto_awesome</span>
+          </div>
+          <div class="hero-card-info">
+            <h3 data-i18n="ai_solver">AI সলভার</h3>
+            <p data-i18n="ai_solver_sub">ছবি, ভয়েস বা লেখায় ধাপে ধাপে সমাধান</p>
+          </div>
+        </button>
+      </div>
+
+      <!-- Sub-containers for the 3 Home Tools -->
+      <div id="subview-normal-calc" class="home-subview"></div>
+      <div id="subview-sci-calc" class="home-subview hidden"></div>
+      <div id="subview-ai-solver" class="home-subview hidden"></div>
+    </section>
+
+    <!-- 4. CHAT & CALLS SCREEN -->
+    <section id="view-chat" class="view-section hidden"></section>
+
+    <!-- 5. CREATIVE SPACE & AI TUTOR SCREEN -->
+    <section id="view-create" class="view-section hidden"></section>
+
+    <!-- 6. EDUCATION FEED & INCOME SCREEN -->
+    <section id="view-feed" class="view-section hidden"></section>
+
+    <!-- 7. PROFILE & AUTH SCREEN -->
+    <section id="view-profile" class="view-section hidden"></section>
+
+    <!-- 8. SETTINGS, SECURITY & LEGAL SCREEN -->
+    <section id="view-settings" class="view-section hidden"></section>
+
+  </main>
+
+  <!-- Bottom Navigation Bar (5 Tabs) -->
+  <nav id="bottom-nav" class="bottom-nav hidden" aria-label="Primary Navigation">
+    <button class="nav-item active" data-route="home">
+      <span class="material-symbols-rounded nav-icon">calculate</span>
+      <span class="nav-label" data-i18n="nav_calc">ক্যালকুলেটর</span>
+    </button>
+    <button class="nav-item" data-route="chat">
+      <div class="nav-icon-wrap">
+        <span class="material-symbols-rounded nav-icon">chat</span>
+        <span id="chat-unread-badge" class="nav-badge hidden">০</span>
+      </div>
+      <span class="nav-label" data-i18n="nav_chat">চ্যাট ও কল</span>
+    </button>
+    <button class="nav-item" data-route="create">
+      <span class="material-symbols-rounded nav-icon">lightbulb</span>
+      <span class="nav-label" data-i18n="nav_create">ক্রিয়েট</span>
+    </button>
+    <button class="nav-item" data-route="feed">
+      <span class="material-symbols-rounded nav-icon">smart_display</span>
+      <span class="nav-label" data-i18n="nav_feed">ফিড</span>
+    </button>
+    <button class="nav-item" data-route="profile">
+      <span class="material-symbols-rounded nav-icon">person</span>
+      <span class="nav-label" data-i18n="nav_profile">প্রোফাইল</span>
+    </button>
+  </nav>
+
+  <!-- Global Incoming Call Overlay -->
+  <div id="incoming-call-modal" class="call-overlay hidden" role="dialog" aria-modal="true"></div>
+
+  <!-- Global Reusable Modal Container -->
+  <div id="global-modal-backdrop" class="modal-backdrop hidden" role="dialog" aria-modal="true">
+    <div class="modal-card" id="global-modal-card">
+      <div class="modal-header">
+        <h3 id="global-modal-title">ZenvX - Calculator</h3>
+        <button id="global-modal-close" class="icon-btn" aria-label="Close">
+          <span class="material-symbols-rounded">close</span>
+        </button>
+      </div>
+      <div id="global-modal-body" class="modal-body"></div>
+      <div id="global-modal-footer" class="modal-footer"></div>
+    </div>
+  </div>
+
+  <!-- Global Snackbar / Toast Container -->
+  <div id="snackbar-container" class="snackbar-container" aria-live="assertive"></div>
+
+  <!-- Main Entry Script (ES Module) -->
+  <script type="module" src="./js/core/router.js"></script>
+</body>
+</html>
